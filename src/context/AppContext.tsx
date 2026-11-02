@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   PageId,
+  AdminTab,
   Farm,
   Crop,
   MarketItem,
@@ -14,6 +15,8 @@ import {
 interface AppContextType {
   activePage: PageId;
   setActivePage: (page: PageId) => void;
+  adminActiveTab: AdminTab;
+  setAdminActiveTab: (tab: AdminTab) => void;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
@@ -66,7 +69,7 @@ interface AppContextType {
   openAuthModal: (mode?: 'signin' | 'register') => void;
   closeAuthModal: () => void;
   setAuthModalMode: (mode: 'signin' | 'register') => void;
-  loginUser: (email: string, password?: string) => boolean;
+  loginUser: (email: string, password?: string, role?: 'Farmer' | 'Admin') => boolean;
   registerUser: (userData: { fullName: string; email: string; mobile: string; role: string }) => boolean;
 
   // Centered Logout Confirmation Modal
@@ -395,6 +398,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activePage, setActivePage] = useState<PageId>('landing');
+  const [adminActiveTab, setAdminActiveTab] = useState<AdminTab>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
 
@@ -507,31 +511,51 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCenteredNotification(null);
   };
 
-  const loginUser = (email: string, _password?: string) => {
+  const loginUser = (email: string, _password?: string, explicitRole?: 'Farmer' | 'Admin') => {
     setIsLoggedIn(true);
-    addToast(`Signed in successfully as ${email}.`);
+    const isExplicitAdmin = explicitRole === 'Admin';
+    const isEmailAdmin = email.toLowerCase().includes('admin');
+    const isCurrentAdmin = profile.role === 'Admin';
+    const resolvedRole: 'Farmer' | 'Admin' = isExplicitAdmin || (!explicitRole && (isEmailAdmin || isCurrentAdmin)) ? 'Admin' : 'Farmer';
+
+    setProfile((prev) => ({
+      ...prev,
+      email,
+      role: resolvedRole,
+      fullName: resolvedRole === 'Admin' && (!prev.fullName || prev.fullName === 'Ravi Kumar') ? 'Admin' : prev.fullName,
+      initials: resolvedRole === 'Admin' ? 'A' : (prev.fullName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'RK'),
+      community: resolvedRole === 'Admin' ? 'SmartAgri Management' : 'SmartAgri community',
+    }));
+
+    addToast(`Signed in successfully as ${resolvedRole}.`);
     setActivePage('dashboard');
+    if (resolvedRole === 'Admin') {
+      setAdminActiveTab('dashboard');
+    }
     return true;
   };
 
   const registerUser = (userData: { fullName: string; email: string; mobile: string; role: string }) => {
-    const initials = userData.fullName
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'RK';
+    const isRoleAdmin = userData.role === 'Admin';
+    const initials = isRoleAdmin
+      ? (userData.fullName ? userData.fullName[0].toUpperCase() : 'A')
+      : (userData.fullName
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2) || 'RK');
 
     setProfile({
-      fullName: userData.fullName,
+      fullName: userData.fullName || (isRoleAdmin ? 'Admin' : 'Farmer User'),
       email: userData.email,
       mobile: userData.mobile,
-      role: userData.role === 'Farmer' ? 'Farmer' : 'Agricultural Professional',
-      community: 'SmartAgri community',
+      role: isRoleAdmin ? 'Admin' : 'Farmer',
+      community: isRoleAdmin ? 'SmartAgri Management' : 'SmartAgri community',
       initials,
     });
 
-    addToast(`Account created for ${userData.fullName}.`, 'success');
+    addToast(`Account created as ${isRoleAdmin ? 'Admin' : 'Farmer'}.`, 'success');
     return true;
   };
 
@@ -720,6 +744,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         activePage,
         setActivePage,
+        adminActiveTab,
+        setAdminActiveTab,
         sidebarOpen,
         setSidebarOpen,
         toggleSidebar,

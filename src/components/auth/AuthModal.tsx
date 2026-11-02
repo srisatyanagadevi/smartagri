@@ -29,7 +29,7 @@ export const AuthModal: React.FC = () => {
   } = useApp();
 
   // Registration Form State
-  const [role, setRole] = useState<'Farmer' | 'Agricultural User'>('Farmer');
+  const [role, setRole] = useState<'Farmer' | 'Admin'>('Farmer');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
@@ -42,6 +42,7 @@ export const AuthModal: React.FC = () => {
   const [regErrors, setRegErrors] = useState<Record<string, string>>({});
 
   // Sign In Form State
+  const [loginRole, setLoginRole] = useState<'Farmer' | 'Admin'>('Farmer');
   const [loginEmail, setLoginEmail] = useState(profile?.email || '');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginShowPassword, setLoginShowPassword] = useState(false);
@@ -178,16 +179,20 @@ export const AuthModal: React.FC = () => {
 
     // Post-Registration Transition:
     // 1. Show centered notification popup
-    // 2. Pre-fill login email
+    // 2. Pre-fill login email & role
     // 3. Switch tab to Sign In
     setLoginEmail(email.trim());
     setLoginPassword(password);
+    setLoginRole(role);
 
+    const isAdm = role === 'Admin';
     showCenteredNotification({
-      title: 'Account Created Successfully!',
-      message: `Welcome to SmartAgri, ${fullName.trim()}! Your account has been registered with verified high-entropy security credentials. You can now sign in to access your farmer workspace.`,
+      title: isAdm ? 'Admin Account Created!' : 'Account Created Successfully!',
+      message: isAdm
+        ? `Welcome to SmartAgri, ${fullName.trim()}! Your Administrator account has been registered. Sign in to access the full Admin Dashboard.`
+        : `Welcome to SmartAgri, ${fullName.trim()}! Your farmer account has been registered with verified high-entropy security credentials. You can now sign in to access your workspace.`,
       type: 'success',
-      actionLabel: 'Sign In to Workspace',
+      actionLabel: isAdm ? 'Sign In to Admin Dashboard' : 'Sign In to Workspace',
       onAction: () => {
         setAuthModalMode('signin');
       },
@@ -206,13 +211,16 @@ export const AuthModal: React.FC = () => {
     }
 
     setLoginError('');
-    const success = loginUser(loginEmail.trim(), loginPassword);
+    const success = loginUser(loginEmail.trim(), loginPassword, loginRole);
 
     if (success) {
       closeAuthModal();
+      const isAdminLogin = loginRole === 'Admin' || loginEmail.toLowerCase().includes('admin');
       showCenteredNotification({
-        title: 'Welcome to SmartAgri!',
-        message: `Glad to have you back, ${profile.fullName || 'Farmer'}! Your dashboard and crop management modules are ready.`,
+        title: isAdminLogin ? 'Welcome back, Admin!' : 'Welcome to SmartAgri!',
+        message: isAdminLogin
+          ? `Logged in as Administrator. Here's what's happening with SmartAgri platform analytics.`
+          : `Glad to have you back, ${profile.fullName || 'Farmer'}! Your farm and crop management modules are ready.`,
         type: 'success',
         actionLabel: 'Go to Dashboard',
       });
@@ -307,14 +315,14 @@ export const AuthModal: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setRole('Agricultural User')}
+                    onClick={() => setRole('Admin')}
                     className={`py-2 px-3 rounded-xl border text-[12px] font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      role === 'Agricultural User'
+                      role === 'Admin'
                         ? 'border-[#165A36] bg-[#EAF4E6] text-[#165A36] shadow-2xs font-semibold'
                         : 'border-[#E0E7DE] bg-white text-[#55695E] hover:border-[#CAD8C7]'
                     }`}
                   >
-                    <span>🔬 Agri Professional</span>
+                    <span>🛡️ Admin</span>
                   </button>
                 </div>
               </div>
@@ -633,6 +641,43 @@ export const AuthModal: React.FC = () => {
                   <span>{loginError}</span>
                 </div>
               )}
+
+              {/* Role Selection */}
+              <div>
+                <label className="block text-[11px] font-semibold text-[#172B24] uppercase tracking-wider mb-1.5">
+                  Sign In Role
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginRole('Farmer');
+                      if (loginEmail === 'admin@smartagri.com') setLoginEmail('');
+                    }}
+                    className={`py-2 px-3 rounded-xl border text-[12px] font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      loginRole === 'Farmer'
+                        ? 'border-[#165A36] bg-[#EAF4E6] text-[#165A36] shadow-2xs font-semibold'
+                        : 'border-[#E0E7DE] bg-white text-[#55695E] hover:border-[#CAD8C7]'
+                    }`}
+                  >
+                    <span>🌾 Farmer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginRole('Admin');
+                      if (!loginEmail || loginEmail.includes('ravi')) setLoginEmail('admin@smartagri.com');
+                    }}
+                    className={`py-2 px-3 rounded-xl border text-[12px] font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      loginRole === 'Admin'
+                        ? 'border-[#165A36] bg-[#EAF4E6] text-[#165A36] shadow-2xs font-semibold'
+                        : 'border-[#E0E7DE] bg-white text-[#55695E] hover:border-[#CAD8C7]'
+                    }`}
+                  >
+                    <span>🛡️ Admin</span>
+                  </button>
+                </div>
+              </div>
 
               {/* Email Address */}
               <div>

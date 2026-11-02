@@ -69,11 +69,22 @@ export interface NotificationItem {
   targetPage?: PageId;
 }
 
+export type AdminTab =
+  | 'dashboard'
+  | 'users'
+  | 'farmers'
+  | 'crops'
+  | 'soil'
+  | 'weather'
+  | 'analytics'
+  | 'reports'
+  | 'settings';
+
 export interface FarmerProfile {
   fullName: string;
   email: string;
   mobile: string;
-  role: string;
+  role: 'Farmer' | 'Admin' | string;
   community: string;
   initials: string;
 }

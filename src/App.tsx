@@ -15,9 +15,12 @@ import { ToastContainer } from './components/common/Toast.tsx';
 import { AuthModal } from './components/auth/AuthModal.tsx';
 import { CenteredNotificationModal } from './components/common/CenteredNotificationModal.tsx';
 import { LogoutConfirmModal } from './components/common/LogoutConfirmModal.tsx';
+import { AdminLayout } from './components/admin/AdminLayout.tsx';
+import { AdminDashboardPage } from './components/admin/AdminDashboardPage.tsx';
+import { AdminSubpages } from './components/admin/AdminSubpages.tsx';
 
 const AppContent: React.FC = () => {
-  const { activePage } = useApp();
+  const { activePage, profile, adminActiveTab } = useApp();
 
   const renderActiveScreen = () => {
     switch (activePage) {
@@ -44,10 +47,19 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const renderAdminScreen = () => {
+    if (adminActiveTab === 'dashboard') {
+      return <AdminDashboardPage />;
+    }
+    return <AdminSubpages />;
+  };
+
   return (
     <>
       {activePage === 'landing' ? (
         <LandingPage />
+      ) : profile.role === 'Admin' ? (
+        <AdminLayout>{renderAdminScreen()}</AdminLayout>
       ) : (
         <FarmerLayout>{renderActiveScreen()}</FarmerLayout>
       )}
