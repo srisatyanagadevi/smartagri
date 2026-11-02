@@ -58,6 +58,39 @@ interface AppContextType {
   setViewingFarm: (farm: Farm | null) => void;
   editingFarm: Farm | null;
   setEditingFarm: (farm: Farm | null) => void;
+
+  // Authentication & Strong Password Management
+  isLoggedIn: boolean;
+  isAuthModalOpen: boolean;
+  authModalMode: 'signin' | 'register';
+  openAuthModal: (mode?: 'signin' | 'register') => void;
+  closeAuthModal: () => void;
+  setAuthModalMode: (mode: 'signin' | 'register') => void;
+  loginUser: (email: string, password?: string) => boolean;
+  registerUser: (userData: { fullName: string; email: string; mobile: string; role: string }) => boolean;
+
+  // Centered Logout Confirmation Modal
+  isLogoutModalOpen: boolean;
+  openLogoutModal: () => void;
+  closeLogoutModal: () => void;
+  confirmLogout: () => void;
+
+  // Centered Notification Popup
+  centeredNotification: {
+    title: string;
+    message: string;
+    type?: 'success' | 'info' | 'error';
+    actionLabel?: string;
+    onAction?: () => void;
+  } | null;
+  showCenteredNotification: (notif: {
+    title: string;
+    message: string;
+    type?: 'success' | 'info' | 'error';
+    actionLabel?: string;
+    onAction?: () => void;
+  }) => void;
+  closeCenteredNotification: () => void;
 }
 
 const initialFarms: Farm[] = [
@@ -419,6 +452,89 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [viewingFarm, setViewingFarm] = useState<Farm | null>(null);
   const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
 
+  // Authentication State
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'register'>('register');
+
+  // Centered Logout Confirmation Modal State
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // Centered Notification Modal State
+  const [centeredNotification, setCenteredNotification] = useState<{
+    title: string;
+    message: string;
+    type?: 'success' | 'info' | 'error';
+    actionLabel?: string;
+    onAction?: () => void;
+  } | null>(null);
+
+  const openAuthModal = (mode: 'signin' | 'register' = 'register') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
+  const openLogoutModal = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const closeLogoutModal = () => {
+    setIsLogoutModalOpen(false);
+  };
+
+  const confirmLogout = () => {
+    setIsLoggedIn(false);
+    setIsLogoutModalOpen(false);
+    setActivePage('landing');
+    addToast('You have been logged out. Returned to SmartAgri landing page.', 'info');
+  };
+
+  const showCenteredNotification = (notif: {
+    title: string;
+    message: string;
+    type?: 'success' | 'info' | 'error';
+    actionLabel?: string;
+    onAction?: () => void;
+  }) => {
+    setCenteredNotification(notif);
+  };
+
+  const closeCenteredNotification = () => {
+    setCenteredNotification(null);
+  };
+
+  const loginUser = (email: string, _password?: string) => {
+    setIsLoggedIn(true);
+    addToast(`Signed in successfully as ${email}.`);
+    setActivePage('dashboard');
+    return true;
+  };
+
+  const registerUser = (userData: { fullName: string; email: string; mobile: string; role: string }) => {
+    const initials = userData.fullName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'RK';
+
+    setProfile({
+      fullName: userData.fullName,
+      email: userData.email,
+      mobile: userData.mobile,
+      role: userData.role === 'Farmer' ? 'Farmer' : 'Agricultural Professional',
+      community: 'SmartAgri community',
+      initials,
+    });
+
+    addToast(`Account created for ${userData.fullName}.`, 'success');
+    return true;
+  };
+
   // Sync to local storage
   useEffect(() => {
     try {
@@ -647,6 +763,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setViewingFarm,
         editingFarm,
         setEditingFarm,
+
+        isLoggedIn,
+        isAuthModalOpen,
+        authModalMode,
+        openAuthModal,
+        closeAuthModal,
+        setAuthModalMode,
+        loginUser,
+        registerUser,
+
+        isLogoutModalOpen,
+        openLogoutModal,
+        closeLogoutModal,
+        confirmLogout,
+
+        centeredNotification,
+        showCenteredNotification,
+        closeCenteredNotification,
       }}
     >
       {children}

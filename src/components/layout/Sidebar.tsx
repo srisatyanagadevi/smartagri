@@ -33,6 +33,7 @@ export const Sidebar: React.FC = () => {
     setSidebarOpen,
     unreadCount,
     addToast,
+    openLogoutModal,
   } = useApp();
 
   const navItems: NavItem[] = [
@@ -55,11 +56,10 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    setActivePage('landing');
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
-    addToast('You have been logged out. Returned to SmartAgri landing page.', 'info');
+    openLogoutModal();
   };
 
   const handleHelp = () => {

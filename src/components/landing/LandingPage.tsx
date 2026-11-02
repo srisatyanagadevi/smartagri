@@ -17,7 +17,7 @@ import {
 import { PageId } from '../../types/index.ts';
 
 export const LandingPage: React.FC = () => {
-  const { setActivePage, addToast } = useApp();
+  const { setActivePage, addToast, openAuthModal } = useApp();
 
   const handleNavigateTo = (page: PageId) => {
     setActivePage(page);
@@ -97,14 +97,14 @@ export const LandingPage: React.FC = () => {
           {/* Right Action Buttons */}
           <div className="flex items-center gap-4">
             <button
-              onClick={() => handleNavigateTo('dashboard')}
-              className="text-[13px] font-medium text-[#172B24] hover:text-[#165A36] transition-colors px-2 py-1"
+              onClick={() => openAuthModal('signin')}
+              className="text-[13px] font-medium text-[#172B24] hover:text-[#165A36] transition-colors px-2 py-1 cursor-pointer"
             >
               Log in
             </button>
 
             <button
-              onClick={() => handleNavigateTo('dashboard')}
+              onClick={() => openAuthModal('register')}
               className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-lg bg-[#165A36] text-white hover:bg-[#124D2E] text-[13px] font-medium transition-colors shadow-2xs cursor-pointer"
             >
               <span>Get started</span>
@@ -142,7 +142,7 @@ export const LandingPage: React.FC = () => {
             {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-3.5 mb-6 sm:mb-7">
               <button
-                onClick={() => handleNavigateTo('dashboard')}
+                onClick={() => openAuthModal('register')}
                 className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#165A36] text-white hover:bg-[#124D2E] text-[13px] sm:text-[14px] font-semibold transition-all shadow-xs group cursor-pointer"
               >
                 <span>Get Started</span>
@@ -383,27 +383,35 @@ export const LandingPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 relative z-10">
             {/* Step 1 */}
-            <div className="space-y-3">
-              <div className="w-5 h-5 rounded-full bg-[#165A36] text-white flex items-center justify-center text-[10px] font-bold">
+            <div
+              onClick={() => openAuthModal('register')}
+              className="space-y-3 cursor-pointer group"
+            >
+              <div className="w-5 h-5 rounded-full bg-[#165A36] group-hover:scale-110 transition-transform text-white flex items-center justify-center text-[10px] font-bold">
                 ●
               </div>
               <div className="text-[11px] font-mono text-[#829187]">01</div>
-              <h4 className="text-[14px] font-semibold text-[#172B24]">
-                Create an account
+              <h4 className="text-[14px] font-semibold text-[#172B24] group-hover:text-[#165A36] transition-colors flex items-center gap-1">
+                <span>Create an account</span>
+                <ArrowRight size={13} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </h4>
               <p className="text-[12px] text-[#55695E] leading-relaxed">
-                Choose Farmer or User and create your prototype account.
+                Choose Farmer or User and create your verified account.
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="space-y-3">
-              <div className="w-5 h-5 rounded-full bg-[#165A36] text-white flex items-center justify-center text-[10px] font-bold">
+            <div
+              onClick={() => openAuthModal('signin')}
+              className="space-y-3 cursor-pointer group"
+            >
+              <div className="w-5 h-5 rounded-full bg-[#165A36] group-hover:scale-110 transition-transform text-white flex items-center justify-center text-[10px] font-bold">
                 ●
               </div>
               <div className="text-[11px] font-mono text-[#829187]">02</div>
-              <h4 className="text-[14px] font-semibold text-[#172B24]">
-                Log in securely
+              <h4 className="text-[14px] font-semibold text-[#172B24] group-hover:text-[#165A36] transition-colors flex items-center gap-1">
+                <span>Log in securely</span>
+                <ArrowRight size={13} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </h4>
               <p className="text-[12px] text-[#55695E] leading-relaxed">
                 Use the dedicated sign-in experience to enter your workspace.
@@ -534,7 +542,7 @@ export const LandingPage: React.FC = () => {
 
           <div className="z-10 shrink-0">
             <button
-              onClick={() => handleNavigateTo('dashboard')}
+              onClick={() => openAuthModal('register')}
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-[#165A36] hover:bg-[#F2F7F1] text-[14px] font-semibold transition-all shadow-sm group cursor-pointer"
             >
               <span>Get started with SmartAgri</span>

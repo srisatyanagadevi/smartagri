@@ -27,6 +27,7 @@ export const Topbar: React.FC = () => {
     setGlobalSearchQuery,
     addToast,
     markAllNotificationsAsRead,
+    openLogoutModal,
   } = useApp();
 
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -186,11 +187,10 @@ export const Topbar: React.FC = () => {
               <div className="border-t border-[#EAEFE9] pt-1">
                 <button
                   onClick={() => {
-                    setActivePage('landing');
-                    addToast('You have been logged out. Returned to SmartAgri landing page.', 'info');
                     setProfileDropdownOpen(false);
+                    openLogoutModal();
                   }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#A33A3A] hover:bg-[#FDF2F2] transition-colors text-left"
+                  className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#A33A3A] hover:bg-[#FDF2F2] transition-colors text-left cursor-pointer"
                 >
                   <LogOut size={15} />
                   <span>Logout</span>

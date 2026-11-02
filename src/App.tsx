@@ -12,18 +12,12 @@ import { SettingsPage } from './components/settings/SettingsPage.tsx';
 import { MarketInformationPage } from './components/market/MarketInformationPage.tsx';
 import { WeatherInformationPage } from './components/weather/WeatherInformationPage.tsx';
 import { ToastContainer } from './components/common/Toast.tsx';
+import { AuthModal } from './components/auth/AuthModal.tsx';
+import { CenteredNotificationModal } from './components/common/CenteredNotificationModal.tsx';
+import { LogoutConfirmModal } from './components/common/LogoutConfirmModal.tsx';
 
 const AppContent: React.FC = () => {
   const { activePage } = useApp();
-
-  if (activePage === 'landing') {
-    return (
-      <>
-        <LandingPage />
-        <ToastContainer />
-      </>
-    );
-  }
 
   const renderActiveScreen = () => {
     switch (activePage) {
@@ -50,7 +44,21 @@ const AppContent: React.FC = () => {
     }
   };
 
-  return <FarmerLayout>{renderActiveScreen()}</FarmerLayout>;
+  return (
+    <>
+      {activePage === 'landing' ? (
+        <LandingPage />
+      ) : (
+        <FarmerLayout>{renderActiveScreen()}</FarmerLayout>
+      )}
+
+      {/* Global Modals & Notifications */}
+      <AuthModal />
+      <LogoutConfirmModal />
+      <CenteredNotificationModal />
+      <ToastContainer />
+    </>
+  );
 };
 
 export default function App() {
