@@ -55,7 +55,11 @@ export const Sidebar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    addToast('You have been logged out of the demonstration session.', 'info');
+    setActivePage('landing');
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+    addToast('You have been logged out. Returned to SmartAgri landing page.', 'info');
   };
 
   const handleHelp = () => {

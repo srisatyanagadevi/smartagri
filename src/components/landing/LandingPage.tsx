@@ -115,18 +115,18 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* 2. HERO SECTION */}
-      <section className="max-w-[1360px] mx-auto px-6 pt-12 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+      <section className="max-w-[1360px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-14 sm:pb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-8 sm:gap-6 lg:gap-14 items-center">
           {/* Left Hero Copy */}
-          <div className="lg:col-span-7">
+          <div className="sm:col-span-7">
             {/* Kicker Pill */}
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#EAF4E6] text-[#1E5E36] text-[11px] font-semibold tracking-wider uppercase mb-5 border border-[#D7EBD0]">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#EAF4E6] text-[#1E5E36] text-[11px] font-semibold tracking-wider uppercase mb-4 sm:mb-5 border border-[#D7EBD0]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#1E5E36]" />
               <span>A smarter way to grow</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-[44px] sm:text-[54px] lg:text-[58px] font-bold text-[#172B24] tracking-tight leading-[1.1]">
+            <h1 className="text-[34px] sm:text-[40px] md:text-[48px] lg:text-[58px] font-bold text-[#172B24] tracking-tight leading-[1.08]">
               Smart Agriculture
               <br />
               <span className="text-[#2D7A46]">Management</span>
@@ -135,15 +135,15 @@ export const LandingPage: React.FC = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-[15px] sm:text-[16px] text-[#55695E] mt-6 mb-8 max-w-xl leading-relaxed">
+            <p className="text-[13px] sm:text-[15px] lg:text-[16px] text-[#55695E] mt-4 sm:mt-5 mb-6 sm:mb-7 max-w-xl leading-relaxed">
               Manage your farms, crops and agricultural activities in one simple digital platform.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-3.5 mb-7">
+            <div className="flex flex-wrap items-center gap-3.5 mb-6 sm:mb-7">
               <button
                 onClick={() => handleNavigateTo('dashboard')}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#165A36] text-white hover:bg-[#124D2E] text-[14px] font-semibold transition-all shadow-xs group cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#165A36] text-white hover:bg-[#124D2E] text-[13px] sm:text-[14px] font-semibold transition-all shadow-xs group cursor-pointer"
               >
                 <span>Get Started</span>
                 <ArrowRight
@@ -154,7 +154,7 @@ export const LandingPage: React.FC = () => {
 
               <a
                 href="#features"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-[#DEE7DC] text-[#172B24] hover:bg-[#F2F7F1] text-[14px] font-medium transition-all shadow-2xs group cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white border border-[#DEE7DC] text-[#172B24] hover:bg-[#F2F7F1] text-[13px] sm:text-[14px] font-medium transition-all shadow-2xs group cursor-pointer"
               >
                 <span>Explore Features</span>
                 <ArrowRight
@@ -165,7 +165,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Checklist */}
-            <div className="flex flex-wrap items-center gap-6 text-[12px] text-[#7C8E82] pt-1">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-[12px] text-[#7C8E82] pt-1">
               <span className="flex items-center gap-1.5">
                 <Check size={14} className="text-[#247A46]" /> Simple to use
               </span>
@@ -179,7 +179,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Right Hero Visual */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end">
+          <div className="sm:col-span-5 flex justify-center sm:justify-end mt-4 sm:mt-0">
             <AerialCropFieldVisual />
           </div>
         </div>

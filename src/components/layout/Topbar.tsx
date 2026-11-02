@@ -186,7 +186,8 @@ export const Topbar: React.FC = () => {
               <div className="border-t border-[#EAEFE9] pt-1">
                 <button
                   onClick={() => {
-                    addToast('Signed out of the demo workspace.', 'info');
+                    setActivePage('landing');
+                    addToast('You have been logged out. Returned to SmartAgri landing page.', 'info');
                     setProfileDropdownOpen(false);
                   }}
                   className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#A33A3A] hover:bg-[#FDF2F2] transition-colors text-left"
