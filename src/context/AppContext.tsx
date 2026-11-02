@@ -388,6 +388,28 @@ const initialProfile: FarmerProfile = {
   initials: 'RK',
 };
 
+interface UserAccount {
+  fullName: string;
+  email: string;
+  mobile: string;
+  role: 'Farmer' | 'Admin';
+}
+
+const defaultAccounts: UserAccount[] = [
+  {
+    fullName: 'Ravi Kumar',
+    email: 'ravi.kumar@example.com',
+    mobile: '+91 98765 43210',
+    role: 'Farmer',
+  },
+  {
+    fullName: 'Admin',
+    email: 'admin@smartagri.com',
+    mobile: '+91 98765 00000',
+    role: 'Admin',
+  },
+];
+
 const initialPreferences: NotificationPreferences = {
   marketUpdates: true,
   harvestReminders: true,
@@ -430,10 +452,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   });
 
+  const [userAccounts, setUserAccounts] = useState<UserAccount[]>(() => {
+    try {
+      const saved = localStorage.getItem('smartagri_accounts');
+      return saved ? JSON.parse(saved) : defaultAccounts;
+    } catch {
+      return defaultAccounts;
+    }
+  });
+
   const [profile, setProfile] = useState<FarmerProfile>(() => {
     try {
       const saved = localStorage.getItem('smartagri_profile');
-      return saved ? JSON.parse(saved) : initialProfile;
+      if (saved) {
+        const parsed: FarmerProfile = JSON.parse(saved);
+        // Cleanse: If role is Farmer, it must never show 'Admin' or initials 'A'
+        if (parsed.role === 'Farmer' && (parsed.fullName.toLowerCase() === 'admin' || !parsed.fullName)) {
+          parsed.fullName = 'Ravi Kumar';
+          parsed.initials = 'RK';
+          parsed.community = 'Farmer · SmartAgri community';
+        }
+        return parsed;
+      }
+      return initialProfile;
     } catch {
       return initialProfile;
     }
@@ -513,19 +554,69 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loginUser = (email: string, _password?: string, explicitRole?: 'Farmer' | 'Admin') => {
     setIsLoggedIn(true);
-    const isExplicitAdmin = explicitRole === 'Admin';
-    const isEmailAdmin = email.toLowerCase().includes('admin');
-    const isCurrentAdmin = profile.role === 'Admin';
-    const resolvedRole: 'Farmer' | 'Admin' = isExplicitAdmin || (!explicitRole && (isEmailAdmin || isCurrentAdmin)) ? 'Admin' : 'Farmer';
+    const cleanEmail = email.trim();
+    const existing = userAccounts.find(
+      (a) => a.email.toLowerCase() === cleanEmail.toLowerCase()
+    );
 
-    setProfile((prev) => ({
-      ...prev,
-      email,
+    // Determine resolved role:
+    // Explicit tab choice takes priority. Otherwise use existing account role, or email keyword.
+    let resolvedRole: 'Farmer' | 'Admin' = 'Farmer';
+    if (explicitRole) {
+      resolvedRole = explicitRole;
+    } else if (existing) {
+      resolvedRole = existing.role;
+    } else if (cleanEmail.toLowerCase().includes('admin')) {
+      resolvedRole = 'Admin';
+    }
+
+    let fullName = '';
+    let initials = '';
+    let community = '';
+
+    if (resolvedRole === 'Admin') {
+      fullName = existing && existing.role === 'Admin' ? existing.fullName : 'Admin';
+      initials = 'A';
+      community = 'SmartAgri Management';
+    } else {
+      // It is a Farmer! Full name must NEVER be 'Admin'
+      if (existing && existing.role === 'Farmer' && existing.fullName.toLowerCase() !== 'admin') {
+        fullName = existing.fullName;
+      } else if (cleanEmail === 'ravi.kumar@example.com' || !cleanEmail) {
+        fullName = 'Ravi Kumar';
+      } else {
+        // Derive clean name from email handle (e.g. "dsnfnn@gmail.com" -> "Dsnfnn")
+        const handle = cleanEmail.split('@')[0] || 'Farmer';
+        const formatted = handle.charAt(0).toUpperCase() + handle.slice(1);
+        fullName = formatted.toLowerCase() === 'admin' ? 'Ravi Kumar' : formatted;
+      }
+
+      initials = fullName
+        .split(' ')
+        .filter(Boolean)
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || 'RK';
+
+      community = 'Farmer · SmartAgri community';
+    }
+
+    const updatedProfile: FarmerProfile = {
+      fullName,
+      email: cleanEmail,
+      mobile: existing?.mobile || (resolvedRole === 'Admin' ? '+91 98765 00000' : '+91 98765 43210'),
       role: resolvedRole,
-      fullName: resolvedRole === 'Admin' && (!prev.fullName || prev.fullName === 'Ravi Kumar') ? 'Admin' : prev.fullName,
-      initials: resolvedRole === 'Admin' ? 'A' : (prev.fullName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'RK'),
-      community: resolvedRole === 'Admin' ? 'SmartAgri Management' : 'SmartAgri community',
-    }));
+      community,
+      initials,
+    };
+
+    setProfile(updatedProfile);
+    try {
+      localStorage.setItem('smartagri_profile', JSON.stringify(updatedProfile));
+    } catch {
+      // ignore
+    }
 
     addToast(`Signed in successfully as ${resolvedRole}.`);
     setActivePage('dashboard');
@@ -537,25 +628,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const registerUser = (userData: { fullName: string; email: string; mobile: string; role: string }) => {
     const isRoleAdmin = userData.role === 'Admin';
+    const cleanRole: 'Farmer' | 'Admin' = isRoleAdmin ? 'Admin' : 'Farmer';
+    const cleanName = userData.fullName?.trim() || (isRoleAdmin ? 'Admin' : 'Ravi Kumar');
+
     const initials = isRoleAdmin
-      ? (userData.fullName ? userData.fullName[0].toUpperCase() : 'A')
-      : (userData.fullName
+      ? 'A'
+      : (cleanName
           .split(' ')
+          .filter(Boolean)
           .map((n) => n[0])
           .join('')
           .toUpperCase()
           .slice(0, 2) || 'RK');
 
-    setProfile({
-      fullName: userData.fullName || (isRoleAdmin ? 'Admin' : 'Farmer User'),
-      email: userData.email,
-      mobile: userData.mobile,
-      role: isRoleAdmin ? 'Admin' : 'Farmer',
-      community: isRoleAdmin ? 'SmartAgri Management' : 'SmartAgri community',
-      initials,
+    const newAccount: UserAccount = {
+      fullName: cleanName,
+      email: userData.email.trim(),
+      mobile: userData.mobile.trim(),
+      role: cleanRole,
+    };
+
+    setUserAccounts((prev) => {
+      const filtered = prev.filter((a) => a.email.toLowerCase() !== newAccount.email.toLowerCase());
+      const nextAccounts = [...filtered, newAccount];
+      try {
+        localStorage.setItem('smartagri_accounts', JSON.stringify(nextAccounts));
+      } catch {
+        // ignore
+      }
+      return nextAccounts;
     });
 
-    addToast(`Account created as ${isRoleAdmin ? 'Admin' : 'Farmer'}.`, 'success');
+    const newProfile: FarmerProfile = {
+      fullName: cleanName,
+      email: userData.email.trim(),
+      mobile: userData.mobile.trim(),
+      role: cleanRole,
+      community: cleanRole === 'Admin' ? 'SmartAgri Management' : 'Farmer · SmartAgri community',
+      initials,
+    };
+
+    setProfile(newProfile);
+    try {
+      localStorage.setItem('smartagri_profile', JSON.stringify(newProfile));
+    } catch {
+      // ignore
+    }
+
+    addToast(`Account created as ${cleanRole}.`, 'success');
     return true;
   };
 

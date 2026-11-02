@@ -5,7 +5,18 @@ import { Check, ShieldAlert } from 'lucide-react';
 export const ProfilePage: React.FC = () => {
   const { profile, updateProfile, addToast } = useApp();
 
-  const [fullName, setFullName] = useState(profile.fullName);
+  const isFarmerRole = profile.role === 'Farmer';
+  const effectiveFarmerName = isFarmerRole && profile.fullName.toLowerCase() === 'admin'
+    ? (profile.email && !profile.email.toLowerCase().includes('admin')
+        ? profile.email.split('@')[0].charAt(0).toUpperCase() + profile.email.split('@')[0].slice(1)
+        : 'Ravi Kumar')
+    : (profile.fullName || 'Ravi Kumar');
+
+  const effectiveInitials = isFarmerRole && (profile.fullName.toLowerCase() === 'admin' || profile.initials === 'A')
+    ? (effectiveFarmerName === 'Ravi Kumar' ? 'RK' : effectiveFarmerName.slice(0, 2).toUpperCase())
+    : (profile.initials || 'RK');
+
+  const [fullName, setFullName] = useState(effectiveFarmerName);
   const [email, setEmail] = useState(profile.email);
   const [mobile, setMobile] = useState(profile.mobile);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -47,15 +58,15 @@ export const ProfilePage: React.FC = () => {
         {/* Farmer Header Info */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-[#DFEADA] text-[#1E5E36] font-semibold text-[18px] flex items-center justify-center shrink-0 border border-[#CEE0C7]">
-            {profile.initials || 'RK'}
+            {effectiveInitials}
           </div>
 
           <div>
             <h3 className="text-[17px] font-semibold text-[#172B24]">
-              {profile.fullName}
+              {effectiveFarmerName}
             </h3>
             <p className="text-[12px] text-[#829187] mt-0.5">
-              {profile.community}
+              {isFarmerRole ? 'Farmer · SmartAgri community' : profile.community}
             </p>
           </div>
         </div>
