@@ -1,0 +1,6 @@
+{
+  "name": "SmartAgri.",
+  "description": "Smart Agriculture Management System - Manage farms, crops, market prices, weather forecasts, and agricultural reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
