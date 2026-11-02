@@ -4,8 +4,8 @@ import { Sun } from 'lucide-react';
 export const AerialCropFieldVisual: React.FC = () => {
   return (
     <div className="relative w-full max-w-[460px] sm:max-w-[450px] md:max-w-[490px] lg:max-w-[530px] mx-auto select-none">
-      {/* Outer arched frame matching Figma design */}
-      <div className="relative w-full h-[420px] sm:h-[470px] md:h-[510px] lg:h-[550px] rounded-t-[130px] sm:rounded-t-[160px] rounded-b-3xl overflow-hidden shadow-2xl border-2 border-[#DCEAD7] bg-[#143D1F] group">
+      {/* Outer rectangular frame with curved edges */}
+      <div className="relative w-full h-[420px] sm:h-[470px] md:h-[510px] lg:h-[550px] rounded-3xl sm:rounded-[28px] overflow-hidden shadow-2xl border-2 border-[#DCEAD7] bg-[#143D1F] group">
         {/* Exact User-Uploaded Aerial Drone Crop Rows Photo */}
         <img
           src="/assets/hero-drone-crop-field.png"

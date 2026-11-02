@@ -18,7 +18,7 @@ export const SettingsPage: React.FC = () => {
             Notification preferences
           </h2>
           <p className="text-[13px] text-[#7C8E82] mt-1">
-            Choose what you'd like to hear about. Preferences are demo-only and are not saved after refresh.
+            Choose what you'd like to hear about in your workspace notifications.
           </p>
         </div>
 

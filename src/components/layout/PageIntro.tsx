@@ -70,14 +70,11 @@ export const PageIntro: React.FC = () => {
         </p>
       </div>
 
-      {/* Right date & demo badge */}
+      {/* Right date */}
       <div className="flex items-center gap-2 self-start sm:self-auto bg-white/70 sm:bg-transparent px-2.5 py-1 sm:p-0 rounded-lg border border-[#E3EAE1] sm:border-0">
         <Calendar size={14} className="text-[#7C8E82]" />
         <span className="text-[12px] text-[#55695E] font-medium">
           {formattedDate}
-        </span>
-        <span className="text-[10px] font-medium bg-[#EEF4EC] text-[#6A7F73] px-1.5 py-0.5 rounded border border-[#DEE7DC]">
-          Demo
         </span>
       </div>
     </div>

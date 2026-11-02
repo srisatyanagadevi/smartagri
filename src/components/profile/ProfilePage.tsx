@@ -143,7 +143,7 @@ export const ProfilePage: React.FC = () => {
             </button>
 
             <span className="text-[12px] text-[#829187]">
-              Changes apply to this demo session only.
+              Changes saved to your account profile.
             </span>
           </div>
         </form>

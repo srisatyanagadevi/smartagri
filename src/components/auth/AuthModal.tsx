@@ -42,8 +42,8 @@ export const AuthModal: React.FC = () => {
   const [regErrors, setRegErrors] = useState<Record<string, string>>({});
 
   // Sign In Form State
-  const [loginEmail, setLoginEmail] = useState('ravi.kumar@example.com');
-  const [loginPassword, setLoginPassword] = useState('SmartAgri@2026!');
+  const [loginEmail, setLoginEmail] = useState(profile?.email || '');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginShowPassword, setLoginShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loginError, setLoginError] = useState('');
@@ -658,15 +658,6 @@ export const AuthModal: React.FC = () => {
                   <label className="text-[12px] font-semibold text-[#172B24]">
                     Password
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginPassword('SmartAgri@2026!');
-                    }}
-                    className="text-[11px] text-[#165A36] hover:underline"
-                  >
-                    Reset to Demo Password
-                  </button>
                 </div>
                 <div className="relative">
                   <Lock size={15} className="absolute left-3.5 top-3 text-[#788C80]" />
@@ -709,24 +700,6 @@ export const AuthModal: React.FC = () => {
                 <span>Sign In to Workspace</span>
                 <ArrowRight size={15} />
               </button>
-
-              {/* Quick Fill Box for testing */}
-              <div className="p-3.5 rounded-xl bg-[#F4F9F2] border border-[#DCEAD8] text-[12px] flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-[#172B24]">Farmer Demo Credentials</p>
-                  <p className="text-[#65786D] text-[11px]">ravi.kumar@example.com</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginEmail('ravi.kumar@example.com');
-                    setLoginPassword('SmartAgri@2026!');
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-white border border-[#CFDFC9] text-[#165A36] text-[11px] font-semibold hover:bg-[#EAF4E6] transition-colors shadow-2xs"
-                >
-                  Fill Demo
-                </button>
-              </div>
 
               <div className="text-center pt-2">
                 <p className="text-[12px] text-[#788C80]">
