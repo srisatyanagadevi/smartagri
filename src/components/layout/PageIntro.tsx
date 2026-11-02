@@ -9,6 +9,10 @@ interface PageIntroConfig {
 }
 
 const introConfigs: Record<PageId, PageIntroConfig> = {
+  landing: {
+    tagline: 'WELCOME TO SMARTAGRI',
+    description: 'Smart Agriculture Management System.',
+  },
   dashboard: {
     tagline: 'YOUR FARM AT A GLANCE',
     description: 'A little clarity for a better growing day.',

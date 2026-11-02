@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext.tsx';
 import { FarmerLayout } from './components/layout/FarmerLayout.tsx';
+import { LandingPage } from './components/landing/LandingPage.tsx';
 import { DashboardPage } from './components/dashboard/DashboardPage.tsx';
 import { MyFarmPage } from './components/farms/MyFarmPage.tsx';
 import { CropManagementPage } from './components/crops/CropManagementPage.tsx';
@@ -10,9 +11,19 @@ import { ProfilePage } from './components/profile/ProfilePage.tsx';
 import { SettingsPage } from './components/settings/SettingsPage.tsx';
 import { MarketInformationPage } from './components/market/MarketInformationPage.tsx';
 import { WeatherInformationPage } from './components/weather/WeatherInformationPage.tsx';
+import { ToastContainer } from './components/common/Toast.tsx';
 
 const AppContent: React.FC = () => {
   const { activePage } = useApp();
+
+  if (activePage === 'landing') {
+    return (
+      <>
+        <LandingPage />
+        <ToastContainer />
+      </>
+    );
+  }
 
   const renderActiveScreen = () => {
     switch (activePage) {

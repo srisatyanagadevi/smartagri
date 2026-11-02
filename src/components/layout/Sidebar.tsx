@@ -14,6 +14,7 @@ import {
   HelpCircle,
   LogOut,
   ExternalLink,
+  Globe,
   X,
 } from 'lucide-react';
 
@@ -204,6 +205,18 @@ export const Sidebar: React.FC = () => {
               Your next season starts here.
             </p>
           </div>
+
+          {/* Landing Page */}
+          <button
+            onClick={() => handleNavClick('landing')}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] text-[#C1DBC7] hover:text-white hover:bg-[#1C6941] transition-colors"
+          >
+            <div className="flex items-center gap-2.5">
+              <Globe size={17} className="text-[#9FC6AA]" />
+              <span>Landing Page</span>
+            </div>
+            <ExternalLink size={13} className="text-[#84B091]" />
+          </button>
 
           {/* Help & Support */}
           <button

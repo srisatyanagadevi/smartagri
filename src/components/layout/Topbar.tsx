@@ -4,6 +4,7 @@ import { Menu, Search, Bell, ChevronDown, User, Settings, LogOut, Check } from '
 import { PageId } from '../../types/index.ts';
 
 const pageTitleMap: Record<PageId, string> = {
+  landing: 'Home',
   dashboard: 'Dashboard',
   farms: 'My Farm',
   crops: 'Crop Management',

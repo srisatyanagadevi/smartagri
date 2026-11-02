@@ -1,4 +1,5 @@
 export type PageId =
+  | 'landing'
   | 'dashboard'
   | 'farms'
   | 'crops'
