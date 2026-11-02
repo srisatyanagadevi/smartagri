@@ -93,7 +93,7 @@ export const AdminSubpages: React.FC = () => {
     });
 
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -290,7 +290,7 @@ export const AdminSubpages: React.FC = () => {
     const farmersOnly = mockUsersList.filter((u) => u.role === 'Farmer');
 
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Registered Farmers Directory</h1>
@@ -357,7 +357,7 @@ export const AdminSubpages: React.FC = () => {
   // =================== 3. TAB: CROPS OVERSIGHT ===================
   if (adminActiveTab === 'crops') {
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Crop Oversight & Cultivation Metrics</h1>
@@ -424,7 +424,7 @@ export const AdminSubpages: React.FC = () => {
   // =================== 4. TAB: SOIL HEALTH REGISTRY ===================
   if (adminActiveTab === 'soil') {
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Soil Reports Master Registry</h1>
@@ -495,7 +495,7 @@ export const AdminSubpages: React.FC = () => {
   // =================== 5. TAB: WEATHER DATA ===================
   if (adminActiveTab === 'weather') {
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         <div>
           <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Agricultural Weather Telemetry</h1>
           <p className="text-[13px] text-[#65786D] mt-0.5">
@@ -556,7 +556,7 @@ export const AdminSubpages: React.FC = () => {
   // =================== 6. TAB: ANALYTICS ===================
   if (adminActiveTab === 'analytics') {
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         <div>
           <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Platform Agronomic Analytics</h1>
           <p className="text-[13px] text-[#65786D] mt-0.5">
@@ -646,7 +646,7 @@ export const AdminSubpages: React.FC = () => {
     ];
 
     return (
-      <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">System & Agronomic Reports</h1>
@@ -693,7 +693,7 @@ export const AdminSubpages: React.FC = () => {
 
   // =================== 8. TAB: SETTINGS ===================
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
+    <div className="space-y-6">
       <div>
         <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Platform & Administrative Settings</h1>
         <p className="text-[13px] text-[#65786D] mt-0.5">

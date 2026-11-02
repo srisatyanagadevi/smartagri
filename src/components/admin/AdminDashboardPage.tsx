@@ -34,7 +34,7 @@ export const AdminDashboardPage: React.FC = () => {
   const areaPath = `${curvePath} L 480 180 L 50 180 Z`;
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto relative">
+    <div className="space-y-6 relative">
       {/* Decorative foliage watermark in top-right header matching screenshot */}
       <div className="absolute top-0 right-0 w-80 h-64 pointer-events-none opacity-25 select-none overflow-hidden hidden sm:block">
         <svg viewBox="0 0 400 300" fill="none" className="w-full h-full text-[#15B064]">

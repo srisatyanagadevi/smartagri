@@ -51,33 +51,15 @@ export const AdminTopbar: React.FC = () => {
 
   return (
     <header className="h-[76px] bg-white border-b border-[#E3EAE1] px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30">
-      {/* Left zone: Hamburger + Title + Breadcrumbs matching Farmer layout */}
-      <div className="flex items-center gap-4">
+      {/* Left zone: Hamburger Menu Toggle matching screenshot */}
+      <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
           className="p-1.5 -ml-1.5 rounded-lg text-[#172B24] hover:bg-[#F2F7F1] transition-colors focus:outline-none focus:ring-2 focus:ring-[#165A36]/30 cursor-pointer"
           aria-label="Toggle navigation"
         >
-          <Menu size={20} className="text-[#172B24]" />
+          <Menu size={22} className="text-[#172B24]" />
         </button>
-
-        <div className="flex flex-col">
-          <h1 className="text-[20px] lg:text-[22px] font-semibold text-[#172B24] leading-tight tracking-tight">
-            {adminTabTitleMap[adminActiveTab] || 'Admin Dashboard'}
-          </h1>
-          <div className="flex items-center gap-1.5 text-[11px] text-[#829187] mt-0.5">
-            <span
-              onClick={() => setAdminActiveTab('dashboard')}
-              className="hover:text-[#165A36] cursor-pointer transition-colors"
-            >
-              Admin
-            </span>
-            <span>/</span>
-            <span className="font-medium text-[#4D6257]">
-              {adminTabTitleMap[adminActiveTab] || 'Dashboard'}
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Right zone: Search + Notification Bell + Divider + Profile */}
