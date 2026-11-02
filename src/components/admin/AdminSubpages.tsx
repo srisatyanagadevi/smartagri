@@ -35,6 +35,9 @@ export const AdminSubpages: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<'All' | 'Farmer' | 'Admin'>('All');
   const [districtFilter, setDistrictFilter] = useState('All');
   const [inspectUser, setInspectUser] = useState<any | null>(null);
+  const [selectedCropAnalytics, setSelectedCropAnalytics] = useState<'All' | 'Rice' | 'Cotton' | 'Wheat' | 'Maize'>('All');
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+  const [hoveredHarvestMonth, setHoveredHarvestMonth] = useState<number | null>(null);
 
   // =================== MOCK DATA: USERS ===================
   const mockUsersList = [
@@ -555,30 +558,120 @@ export const AdminSubpages: React.FC = () => {
 
   // =================== 6. TAB: ANALYTICS ===================
   if (adminActiveTab === 'analytics') {
+    // Multi-Crop Yield Trend datasets (Quintals / Acre across 7 cultivation months)
+    const yieldDatasets: Record<
+      'All' | 'Rice' | 'Cotton' | 'Wheat' | 'Maize',
+      {
+        title: string;
+        current: number[];
+        benchmark: number[];
+        growth: string;
+        unit: string;
+        peakMonth: string;
+      }
+    > = {
+      All: {
+        title: 'Composite Agronomic Yield',
+        current: [22, 25, 29, 34, 38, 41, 44],
+        benchmark: [20, 22, 26, 30, 34, 37, 39],
+        growth: '+12.8% YoY',
+        unit: 'Quintals/Acre',
+        peakMonth: 'Nov (Kharif Peak)',
+      },
+      Rice: {
+        title: 'Paddy / Rice (Swarna Sub1 & Samba)',
+        current: [24, 28, 33, 37, 40, 43, 46],
+        benchmark: [21, 24, 29, 33, 36, 38, 40],
+        growth: '+15.0% YoY',
+        unit: 'Quintals/Acre',
+        peakMonth: 'Nov (Harvest Phase)',
+      },
+      Cotton: {
+        title: 'Bt Cotton (Rasi-II & Hybrid)',
+        current: [10, 12, 14, 16, 18, 20, 21],
+        benchmark: [9, 10, 12, 14, 16, 17, 18],
+        growth: '+16.6% YoY',
+        unit: 'Quintals/Acre',
+        peakMonth: 'Jan (Boll Burst)',
+      },
+      Wheat: {
+        title: 'Wheat (Sharbati & HD-2967)',
+        current: [16, 19, 21, 24, 26, 28, 29],
+        benchmark: [15, 17, 19, 21, 23, 25, 26],
+        growth: '+11.5% YoY',
+        unit: 'Quintals/Acre',
+        peakMonth: 'Dec (Grain Fill)',
+      },
+      Maize: {
+        title: 'Hybrid Sweet Corn & Feed Maize',
+        current: [18, 21, 25, 29, 33, 35, 36],
+        benchmark: [16, 19, 22, 26, 29, 31, 32],
+        growth: '+12.5% YoY',
+        unit: 'Quintals/Acre',
+        peakMonth: 'Oct (Tassel & Ear)',
+      },
+    };
+
+    const currentData = yieldDatasets[selectedCropAnalytics];
+    const months = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+
+    // Coordinate calculation for 540x200 SVG ViewBox
+    // y range 20 to 180 (min val 5, max val 50)
+    const getY = (val: number) => 185 - ((val - 5) / 45) * 155;
+    const getX = (idx: number) => 50 + idx * 78;
+
+    const currentPoints = currentData.current.map((v, i) => ({ x: getX(i), y: getY(v), val: v, month: months[i] }));
+    const benchmarkPoints = currentData.benchmark.map((v, i) => ({ x: getX(i), y: getY(v), val: v, month: months[i] }));
+
+    // Generate smooth SVG paths
+    const buildPath = (pts: { x: number; y: number }[]) => {
+      return pts.reduce((acc, pt, i) => {
+        if (i === 0) return `M ${pt.x} ${pt.y}`;
+        const prev = pts[i - 1];
+        const cpX1 = prev.x + (pt.x - prev.x) / 2;
+        const cpX2 = prev.x + (pt.x - prev.x) / 2;
+        return `${acc} C ${cpX1} ${prev.y}, ${cpX2} ${pt.y}, ${pt.x} ${pt.y}`;
+      }, '');
+    };
+
+    const currentCurve = buildPath(currentPoints);
+    const benchmarkCurve = buildPath(benchmarkPoints);
+    const currentArea = `${currentCurve} L ${getX(months.length - 1)} 190 L ${getX(0)} 190 Z`;
+
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Platform Agronomic Analytics</h1>
-          <p className="text-[13px] text-[#65786D] mt-0.5">
-            Operational efficiency indices, harvest productivity projections, and resource optimization metrics.
-          </p>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-[24px] font-bold text-[#172B24] tracking-tight">Platform Agronomic Analytics</h1>
+            <p className="text-[13px] text-[#65786D] mt-0.5">
+              Multi-season yield benchmarking, harvest logistics modeling, water conservation, and mandi price realization.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1.5 rounded-xl bg-white border border-[#E3EAE1] text-[12px] text-[#55695E] shadow-2xs font-medium flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#165A36]" />
+              Season: <b className="text-[#172B24]">Kharif 2026-27</b>
+            </span>
+          </div>
         </div>
 
-        {/* Analytics Top Cards */}
+        {/* Top 4 KPI Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl border border-[#E3EAE1] p-5 shadow-2xs space-y-1">
-            <span className="text-[11.5px] font-semibold text-[#7C8E82] uppercase tracking-wider">Yield Projection</span>
-            <div className="text-[26px] font-bold text-[#165A36]">+9.2%</div>
+            <span className="text-[11.5px] font-semibold text-[#7C8E82] uppercase tracking-wider">Average Yield Index</span>
+            <div className="text-[26px] font-bold text-[#165A36]">+12.8%</div>
             <p className="text-[11.5px] text-[#15B064] font-medium flex items-center gap-1">
-              <TrendingUp size={13} /> Above state historical benchmark
+              <TrendingUp size={13} /> Exceeding regional APMC target
             </p>
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E3EAE1] p-5 shadow-2xs space-y-1">
-            <span className="text-[11.5px] font-semibold text-[#7C8E82] uppercase tracking-wider">Water Efficiency</span>
-            <div className="text-[26px] font-bold text-[#2563EB]">87%</div>
+            <span className="text-[11.5px] font-semibold text-[#7C8E82] uppercase tracking-wider">Water Conserved</span>
+            <div className="text-[26px] font-bold text-[#2563EB]">42.5%</div>
             <p className="text-[11.5px] text-[#2563EB] font-medium">
-              Micro-drip irrigation adoption rate
+              3,180 Megaliters saved via smart drip
             </p>
           </div>
 
@@ -591,43 +684,381 @@ export const AdminSubpages: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E3EAE1] p-5 shadow-2xs space-y-1">
-            <span className="text-[11.5px] font-semibold text-[#7C8E82] uppercase tracking-wider">Active Engagement</span>
-            <div className="text-[26px] font-bold text-[#7C3AED]">88.4%</div>
+            <span className="text-[11.5px] font-semibold text-[#7C8E82] uppercase tracking-wider">Price Realization Premium</span>
+            <div className="text-[26px] font-bold text-[#7C3AED]">+15.4%</div>
             <p className="text-[11.5px] text-[#7C3AED] font-medium">
-              Weekly log updates across all active farms
+              Average realization above Govt. MSP
             </p>
           </div>
         </div>
 
-        {/* Visual Monthly Harvest Projection Chart */}
-        <div className="bg-white rounded-2xl border border-[#E3EAE1] p-6 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-[#172B24] text-[16px]">Monthly Harvest Volume Forecast (Metric Tons)</h3>
-            <span className="text-[12px] bg-[#EAF4E6] text-[#165A36] px-3 py-1 rounded-full font-semibold">
-              Season 2026-27
-            </span>
+        {/* GRAPH 1: Interactive Multi-Crop Yield Trends Graph (SVG Line/Area) */}
+        <div className="bg-white rounded-2xl border border-[#E3EAE1] p-6 shadow-2xs space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-[#172B24] text-[17px]">
+                  Crop Yield & Productivity Trajectory
+                </h3>
+                <span className="text-[11px] font-semibold bg-[#EAF4E6] text-[#165A36] px-2.5 py-0.5 rounded-full border border-[#D5E8D0]">
+                  {currentData.growth}
+                </span>
+              </div>
+              <p className="text-[12.5px] text-[#65786D] mt-0.5">
+                Comparing 2026 Season Yield Curve vs 2025 Historical Benchmark ({currentData.unit})
+              </p>
+            </div>
+
+            {/* Crop Selector Tabs */}
+            <div className="flex flex-wrap items-center bg-[#FAFDF9] border border-[#DEE7DC] rounded-xl p-1 gap-1 text-[12px]">
+              {(['All', 'Rice', 'Cotton', 'Wheat', 'Maize'] as const).map((cropKey) => (
+                <button
+                  key={cropKey}
+                  onClick={() => setSelectedCropAnalytics(cropKey)}
+                  className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+                    selectedCropAnalytics === cropKey
+                      ? 'bg-[#165A36] text-white shadow-xs font-semibold'
+                      : 'text-[#55695E] hover:text-[#172B24] hover:bg-[#EAF4E6]'
+                  }`}
+                >
+                  {cropKey === 'All' ? 'Composite' : cropKey}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="h-56 flex items-end justify-between gap-4 pt-6 px-4 border-b border-[#E3EAE1]">
-            {[
-              { month: 'Sep', tons: 450, height: '40%' },
-              { month: 'Oct', tons: 820, height: '65%' },
-              { month: 'Nov', tons: 1450, height: '95%' },
-              { month: 'Dec', tons: 1120, height: '80%' },
-              { month: 'Jan', tons: 680, height: '55%' },
-              { month: 'Feb', tons: 510, height: '45%' },
-            ].map((col) => (
-              <div key={col.month} className="flex-1 flex flex-col items-center gap-2 group">
-                <span className="text-[11px] font-semibold text-[#165A36] opacity-0 group-hover:opacity-100 transition-opacity">
-                  {col.tons} T
-                </span>
-                <div
-                  style={{ height: col.height }}
-                  className="w-full max-w-[50px] bg-[#165A36] hover:bg-[#124D2E] rounded-t-xl transition-all"
+          {/* SVG Graph Container */}
+          <div className="relative w-full h-[240px] pt-2">
+            <svg viewBox="0 0 540 210" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="analyticsYieldGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#165A36" stopOpacity="0.28" />
+                  <stop offset="60%" stopColor="#165A36" stopOpacity="0.08" />
+                  <stop offset="100%" stopColor="#165A36" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+
+              {/* Y-axis Horizontal Grid lines */}
+              {[
+                { label: '45 Q/A', y: getY(45) },
+                { label: '35 Q/A', y: getY(35) },
+                { label: '25 Q/A', y: getY(25) },
+                { label: '15 Q/A', y: getY(15) },
+                { label: '5 Q/A', y: getY(5) },
+              ].map((grid) => (
+                <g key={grid.label}>
+                  <line
+                    x1="45"
+                    y1={grid.y}
+                    x2="530"
+                    y2={grid.y}
+                    stroke="#EDF3EC"
+                    strokeDasharray="4 4"
+                    strokeWidth="1"
+                  />
+                  <text x="38" y={grid.y + 3.5} textAnchor="end" fill="#94A399" fontSize="9.5" fontWeight="500">
+                    {grid.label}
+                  </text>
+                </g>
+              ))}
+
+              {/* Shaded Area under 2026 curve */}
+              <path d={currentArea} fill="url(#analyticsYieldGrad)" />
+
+              {/* 2025 Benchmark Dashed Line */}
+              <path
+                d={benchmarkCurve}
+                fill="none"
+                stroke="#D97706"
+                strokeWidth="2.2"
+                strokeDasharray="5 5"
+                strokeLinecap="round"
+                opacity="0.85"
+              />
+
+              {/* 2026 Current Season Solid Curve */}
+              <path
+                d={currentCurve}
+                fill="none"
+                stroke="#165A36"
+                strokeWidth="3.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Benchmark Data Points */}
+              {benchmarkPoints.map((pt, idx) => (
+                <circle
+                  key={`bm-${idx}`}
+                  cx={pt.x}
+                  cy={pt.y}
+                  r="3.5"
+                  fill="#FFFFFF"
+                  stroke="#D97706"
+                  strokeWidth="2"
                 />
-                <span className="text-[12px] font-semibold text-[#405247] pt-2">{col.month}</span>
+              ))}
+
+              {/* Current Season Interactive Data Points */}
+              {currentPoints.map((pt, idx) => (
+                <g
+                  key={`curr-${idx}`}
+                  className="cursor-pointer group"
+                  onMouseEnter={() => setHoveredPoint(idx)}
+                  onMouseLeave={() => setHoveredPoint(null)}
+                >
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={hoveredPoint === idx ? 7 : 4.5}
+                    fill="#165A36"
+                    stroke="#FFFFFF"
+                    strokeWidth="2.5"
+                    className="transition-all duration-150"
+                  />
+
+                  {/* Tooltip Card on Hover */}
+                  {hoveredPoint === idx && (
+                    <g className="animate-in fade-in duration-100">
+                      <rect
+                        x={pt.x - 52}
+                        y={pt.y - 48}
+                        width="104"
+                        height="40"
+                        rx="8"
+                        fill="#172B24"
+                        className="shadow-lg"
+                      />
+                      <text x={pt.x} y={pt.y - 32} fill="#9EE2B7" fontSize="9.5" fontWeight="700" textAnchor="middle">
+                        {pt.month} 2026: {pt.val} Q/A
+                      </text>
+                      <text x={pt.x} y={pt.y - 18} fill="#CBD5E1" fontSize="8.5" fontWeight="500" textAnchor="middle">
+                        2025: {currentData.benchmark[idx]} Q/A (+{((pt.val - currentData.benchmark[idx]) / currentData.benchmark[idx] * 100).toFixed(1)}%)
+                      </text>
+                    </g>
+                  )}
+                </g>
+              ))}
+
+              {/* X-axis Month Labels */}
+              {months.map((m, i) => (
+                <text
+                  key={m}
+                  x={getX(i)}
+                  y="204"
+                  fill={hoveredPoint === i ? '#165A36' : '#65786D'}
+                  fontSize="10"
+                  fontWeight={hoveredPoint === i ? '700' : '500'}
+                  textAnchor="middle"
+                >
+                  {m}
+                </text>
+              ))}
+            </svg>
+          </div>
+
+          {/* Graph Legend & Status */}
+          <div className="flex flex-wrap items-center justify-between pt-3 border-t border-[#F2F6F1] text-[12px]">
+            <div className="flex items-center gap-5">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-[#165A36]" />
+                <span className="font-semibold text-[#172B24]">2026 Season (Current / Projected)</span>
               </div>
-            ))}
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-0.5 bg-[#D97706] border-t-2 border-dashed border-[#D97706]" />
+                <span className="text-[#65786D]">2025 Historical Baseline</span>
+              </div>
+            </div>
+
+            <div className="text-[#165A36] font-medium text-[12px]">
+              Peak Production Horizon: <b>{currentData.peakMonth}</b>
+            </div>
+          </div>
+        </div>
+
+        {/* ROW 2: Harvest Volume & Mandi Valuation + Soil Nutrient Spectrum */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Left: Monthly Harvest Volume & Revenue Forecast */}
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-[#E3EAE1] p-6 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-[#172B24] text-[16px]">Monthly Harvest Volume & Mandi Valuation</h3>
+                <p className="text-[12px] text-[#65786D] mt-0.5">Estimated output in Metric Tons & projected revenue in ₹ Lakhs</p>
+              </div>
+              <span className="text-[11.5px] bg-[#EAF4E6] text-[#165A36] px-2.5 py-0.5 rounded-full font-semibold border border-[#D5E8D0]">
+                Total: 5,030 T
+              </span>
+            </div>
+
+            {/* Custom Dual Bar Chart */}
+            <div className="h-56 flex items-end justify-between gap-3 pt-6 px-3 border-b border-[#E3EAE1]">
+              {[
+                { month: 'Sep', tons: 450, rev: '₹112L', height: '36%', highlight: false },
+                { month: 'Oct', tons: 820, rev: '₹218L', height: '58%', highlight: false },
+                { month: 'Nov', tons: 1450, rev: '₹395L', height: '96%', highlight: true },
+                { month: 'Dec', tons: 1120, rev: '₹305L', height: '78%', highlight: false },
+                { month: 'Jan', tons: 680, rev: '₹185L', height: '50%', highlight: false },
+                { month: 'Feb', tons: 510, rev: '₹142L', height: '42%', highlight: false },
+              ].map((col, idx) => (
+                <div
+                  key={col.month}
+                  className="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer"
+                  onMouseEnter={() => setHoveredHarvestMonth(idx)}
+                  onMouseLeave={() => setHoveredHarvestMonth(null)}
+                >
+                  {/* Tooltip on hover */}
+                  <div
+                    className={`transition-all duration-150 flex flex-col items-center ${
+                      hoveredHarvestMonth === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    }`}
+                  >
+                    <span className="text-[10px] font-bold bg-[#172B24] text-white px-2 py-0.5 rounded-md whitespace-nowrap shadow-xs">
+                      {col.tons} T · {col.rev}
+                    </span>
+                  </div>
+
+                  {/* Revenue badge indicator */}
+                  <span className={`text-[10.5px] font-semibold ${col.highlight ? 'text-[#165A36]' : 'text-[#7C8E82]'}`}>
+                    {col.rev}
+                  </span>
+
+                  {/* Bar */}
+                  <div
+                    style={{ height: col.height }}
+                    className={`w-full max-w-[46px] rounded-t-xl transition-all ${
+                      col.highlight
+                        ? 'bg-[#165A36] group-hover:bg-[#124D2E] shadow-sm'
+                        : 'bg-[#48A169] group-hover:bg-[#3B8A58]'
+                    }`}
+                  />
+                  <span className="text-[12px] font-semibold text-[#405247] pt-1">{col.month}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between text-[11.5px] text-[#7C8E82] pt-1">
+              <span>*November represents major Kharif paddy harvest peak in Delta districts.</span>
+              <span className="font-semibold text-[#165A36]">Est. Cumulative Value: ₹1,357 Lakhs</span>
+            </div>
+          </div>
+
+          {/* Right: Soil Nutrient Compliance Spectrum */}
+          <div className="lg:col-span-5 bg-white rounded-2xl border border-[#E3EAE1] p-6 shadow-2xs space-y-4 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-[#172B24] text-[16px]">Soil Nutrient Compliance</h3>
+                <span className="text-[11.5px] text-[#2563EB] font-semibold bg-[#EFF6FF] px-2 py-0.5 rounded-full">
+                  3,428 Tests
+                </span>
+              </div>
+              <p className="text-[12px] text-[#65786D] mt-0.5">Optimal nutrient saturation across monitored farms</p>
+            </div>
+
+            <div className="space-y-3.5 my-auto py-2">
+              {[
+                { label: 'Available Nitrogen (N)', percent: 74, status: 'Optimal', color: 'bg-[#165A36]' },
+                { label: 'Available Phosphorus (P)', percent: 68, status: 'Moderate-High', color: 'bg-[#2563EB]' },
+                { label: 'Soluble Potassium (K)', percent: 82, status: 'Optimal', color: 'bg-[#15B064]' },
+                { label: 'Organic Carbon (> 0.75%)', percent: 65, status: 'Good', color: 'bg-[#D97706]' },
+                { label: 'pH Balance (6.0 - 7.5)', percent: 88, status: 'Neutral Range', color: 'bg-[#165A36]' },
+                { label: 'Micronutrients (Zinc & Boron)', percent: 76, status: 'Adequate', color: 'bg-[#7C3AED]' },
+              ].map((item) => (
+                <div key={item.label} className="space-y-1">
+                  <div className="flex items-center justify-between text-[12px]">
+                    <span className="font-medium text-[#2C4035]">{item.label}</span>
+                    <span className="font-bold text-[#172B24]">{item.percent}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-[#EEF4ED] rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${item.color} transition-all duration-500`}
+                      style={{ width: `${item.percent}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 bg-[#FAFDF9] rounded-xl border border-[#E3EAE1] text-[11.5px] text-[#4A5D52] flex items-center justify-between">
+              <span>Overall Agronomic Soil Health Index:</span>
+              <span className="font-bold text-[#165A36] text-[13px]">92 / 100 (A+)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ROW 3: Water Conservation by District & Mandi Price Realization vs MSP */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Water Conservation by District */}
+          <div className="lg:col-span-6 bg-white rounded-2xl border border-[#E3EAE1] p-6 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-[#172B24] text-[16px]">Water Conservation by District</h3>
+                <p className="text-[12px] text-[#65786D] mt-0.5">Water saved through precision drip & micro-irrigation vs flood method</p>
+              </div>
+              <span className="text-[11.5px] font-semibold text-[#2563EB] bg-[#EFF6FF] px-2.5 py-0.5 rounded-full">
+                -42.5% Water Usage
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {[
+                { district: 'Kurnool (Semi-Arid Basin)', saved: '52% Saved', liters: '920 Megaliters', progress: 52 },
+                { district: 'Krishna (Delta Plains)', saved: '45% Saved', liters: '810 Megaliters', progress: 45 },
+                { district: 'East Godavari (Canal Zone)', saved: '42% Saved', liters: '690 Megaliters', progress: 42 },
+                { district: 'Guntur (Black Cotton Soil)', saved: '38% Saved', liters: '480 Megaliters', progress: 38 },
+                { district: 'West Godavari (Paddy Belt)', saved: '35% Saved', liters: '280 Megaliters', progress: 35 },
+              ].map((d) => (
+                <div key={d.district} className="p-3 rounded-xl bg-[#FAFDF9] border border-[#EAEFE9] space-y-1.5">
+                  <div className="flex items-center justify-between text-[12.5px]">
+                    <span className="font-semibold text-[#172B24]">{d.district}</span>
+                    <span className="font-bold text-[#2563EB]">{d.saved}</span>
+                  </div>
+                  <div className="w-full h-2 bg-[#E1EDFC] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#2563EB] rounded-full" style={{ width: `${d.progress * 1.8}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[11px] text-[#7C8E82]">
+                    <span>Precision Sensor Deployed</span>
+                    <span>Conserved: {d.liters}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mandi Price Realization vs Minimum Support Price (MSP) */}
+          <div className="lg:col-span-6 bg-white rounded-2xl border border-[#E3EAE1] p-6 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-[#172B24] text-[16px]">Mandi Price Realization vs Govt. MSP</h3>
+                <p className="text-[12px] text-[#65786D] mt-0.5">SmartAgri farmers direct trade prices vs statutory support prices</p>
+              </div>
+              <span className="text-[11.5px] font-semibold text-[#165A36] bg-[#EAF4E6] px-2.5 py-0.5 rounded-full border border-[#D5E8D0]">
+                Avg +₹285 / Quintal
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {[
+                { crop: 'Paddy / Rice (Grade A)', msp: '₹2,203', realized: '₹2,580', premium: '+17.1%', trend: 'up' },
+                { crop: 'Bt Cotton (Medium Staple)', msp: '₹6,620', realized: '₹7,420', premium: '+12.1%', trend: 'up' },
+                { crop: 'Maize (Kharif)', msp: '₹2,090', realized: '₹2,420', premium: '+15.8%', trend: 'up' },
+                { crop: 'Chilli (Guntur Teja)', msp: '₹14,500', realized: '₹17,800', premium: '+22.7%', trend: 'up' },
+                { crop: 'Groundnut (Pod)', msp: '₹5,850', realized: '₹6,480', premium: '+10.8%', trend: 'up' },
+              ].map((c) => (
+                <div key={c.crop} className="p-3 rounded-xl bg-[#FAFDF9] border border-[#EAEFE9] flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-[#172B24] text-[13px]">{c.crop}</h4>
+                    <p className="text-[11px] text-[#7C8E82] mt-0.5">Govt. MSP: {c.msp} / Quintal</p>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="font-bold text-[#165A36] text-[14.5px]">{c.realized}</div>
+                    <span className="text-[11px] font-bold text-[#15B064] bg-[#EAF4E6] px-2 py-0.5 rounded-full">
+                      {c.premium} Premium
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
